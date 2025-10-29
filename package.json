@@ -1,0 +1,19 @@
+{
+  "name": "photogram",
+  "version": "1.0.0",
+  "description": "upload unique posts",
+  "keywords": [
+    "1234"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "Photogram"
+  },
+  "license": "ISC",
+  "author": "ms",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run dev"
+  }
+}
