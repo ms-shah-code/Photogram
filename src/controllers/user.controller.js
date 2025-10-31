@@ -367,7 +367,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
                 postCount: { $size: "$posts" },
                 isSubscribed: {
                     $cond: {
-                        if: { 
+                        if: {
                             $in: [
                                 new mongoose.Types.ObjectId(req.user?._id),
                                 "$subscribers.subscriber"
@@ -405,7 +405,85 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 });
 
 const getWatchHistory = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
 
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "posts",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        avatar: 1,
+                                        username: 1,
+                                        fullName: 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            owner: { $first: "$owner" }
+                        }
+                    },
+                    {
+                        $sort: {
+                            createdAt: -1
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
+
+    if (!user.length) {
+        throw new ApiError(404, "No watch history found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            user[0].watchHistory,
+            "Watch history successfully fetched"
+        )
+    );
+});
+
+const addToWatchHistory = asyncHandler(async (req, res) => {
+    const { userId } = req.user?._id
+    const { postId } = req.params
+    if (!postId) {
+        throw new ApiError(404,"PostId are required!")
+    }
+    const addHistory = await User.findByIdAndUpdate(
+        userId,
+        {
+            $addToSet:{watchHistory:postId}
+        }
+    )
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {},
+            "Watch history are successfully added!"
+        )
+    )
 })
 
 export {
@@ -419,5 +497,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    addToWatchHistory
 }
