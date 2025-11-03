@@ -193,7 +193,7 @@ const getReplyLikeCount = asyncHandler(async (req,res) => {
             "Reply like count fetched successfully"
         )
     )
-}) 
+});
 
 export {
     toggleLikePost,
