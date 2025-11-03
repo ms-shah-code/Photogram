@@ -7,15 +7,11 @@ const likeSchema = new Schema(
       ref: "User",
       required: true
     },
-
-    // 🔥 Post Like
     post: {
       type: Schema.Types.ObjectId,
       ref: "Post",
       default: null
     },
-
-    // 🔥 Comment Like
     comment: {
       type: Schema.Types.ObjectId,
       ref: "Comment",

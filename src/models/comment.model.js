@@ -17,7 +17,6 @@ const commentSchema = new Schema(
       required: true,
     },
 
-    // ✅ this makes replies possible
     parentComment: {
       type: Schema.Types.ObjectId,
       ref: "Comment",
